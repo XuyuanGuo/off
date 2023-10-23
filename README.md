@@ -40,7 +40,7 @@ DAO层：直接与数据库交互，负责数据的CRUD操作。在本项目中�
 
 ### 数据库部分
 
-该项目的数据库定义了area、office、work_time三个表，fen'biafenbia：
+该项目的数据库定义了area、office、work_time三个表，分别存储地区、营业厅、工作时间的信息，其中office表的area_id属性以area表中的id属性为外键，work_time表中的office属性以office表中的id属性为外键。  
 
 ```SQL
 create table `area`(
