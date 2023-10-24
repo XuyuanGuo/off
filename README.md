@@ -14,19 +14,53 @@
 
 ### 前端部分
 
-设计前端页面，分别实现营业厅的营业时间管理和营业时间查询。  
+前端负责用户交互，用户可在前端进行营业厅的营业时间管理和营业时间查询。为实现编辑和查询，页面采取如下策略：
 
 1. 营业厅管理页面要求可以显示和编辑每个营业厅的营业时间，营业状态。
+2. 管理页面具有筛选功能，能够显示全部营业厅，或筛选出指定营业厅。
+3. 按下编辑按钮后，弹出编辑后台信息的对话框。
 
-为实现编辑和查询，页面采取如下策略：
+该项目前端使用Vue.js渐进式JavaScript框架，使用Element-Plus桌面端组件库来快速搭建前端网页，使用Axios来发送和接受网页请求。  
+前端工具介绍：
 
-1. 管理页面具有筛选功能，能够显示全部营业厅，或筛选出指定营业厅。
-2. 按下编辑按钮后，弹出编辑后台信息的对话框。
+1. Vue.js：Vue.js（简称Vue）是一个开源的JavaScript框架，用于构建用户界面和单页面应用。
+2. Element-Plus：Element-Plus是一个基于Vue 3的桌面端组件库，它提供了一整套高质量的组件和工具，用于快速构建富有特色的web应用。
+3. Axios：Axios是一个基于Promise的HTTP客户端，用于浏览器和Node.js。其用于在前端应用中与后端API交互，发送GET、POST等请求。
+
+前端结构介绍：  
+该项目前端包含核心App.vue和四个组件datePicker.vue，infoEditor.vue，officeTable.vue和selectBox.vue。  
+  
+datePicker.vue：
+
+- 简介：日期选择框，用来筛选日期以显示特定日期的营业厅营业时间。
+- props：title，父组件传来的标题，显示在日期选择框上部。
+- events：dateChange，在日期选择框日期改变时，向父组件触发dateChange事件。
+
+infoEditor.vue：
+
+- 简介：主弹窗组件，用于管理营业时间。
+- props：clicks，用于触发弹窗显示的属性；info，存储从父组件传入的营业厅信息。
+- methods：edit，存储用户输入的数据，并将其发送到后端。
+
+officeTable.vue：
+
+- 简介：营业厅营业时间表，用来显示营业厅营业时间。
+- props：officeData，对象数组，是从父组件传入的机构数据；workTimeData，对象数组，是从父组件传入的工作时间数据。
+- methods：getTableData，合并机构和工作时间数据；dialogPopUp，弹出数据编辑窗口。
+- watchs：workTimeData，当其发生改变时，调用getTableData方法。
+- events：在日期选择框日期改变时，会向父组件发出dateChange事件。
+
+selectBox.vue：
+
+- 简介：下拉选择框，当选择项改变时触发 valueChange 事件。
+- props：title，父组件传来的标题，显示在下拉选择框中；options，下拉选项数据。
+- events：在选中选项改变时，会向父组件发出valueChange事件。
 
 ### 后端部分
 
 后端负责响应前端的网络请求、查询数据库并将数据返回给前端。  
 该项目后端使用Java为开发语言，使用Java Spring框架，使用Apache-maven进行项目构建和依赖管理，使用mybatis和mybatis-plus进行数据库的连接。  
+  
 后端工具介绍：  
 
 1. Java Spring：Spring Framework 是 Java 社区中最受欢迎和广泛使用的应用开发框架，能够轻松集成各种企业服务，例如 JMS、JPA 和 JNDI。此外，它与其他流行的 Java 框架（如 Hibernate、MyBatis 和 Quartz）完美集成。
@@ -34,13 +68,16 @@
 3. Mybatis和Mybatis-plus: MyBatis 专为确保直观、清晰和灵活的数据库交互而设计，与其他 ORM 框架不同，MyBatis 允许开发者编写原生 SQL，为复杂查询和优化提供了更大的控制力。此外，Mybatis支持自动将 SQL 查询结果转换为 Java 对象，减少了样板代码。
 
 后端结构介绍：  
+  
 表示层：通常与前端交互，负责处理HTTP请求和返回响应。在本项目中，表示层文件位于com/example/officemgt/controller文件夹下。其中AreaController是一个REST控制器，处理与Area实体相关的HTTP请求（如areaQuery方法返回一个地点列表，用于前端查询地点的选择）。OfficeController和WorkTimeController分别负责Office实体和WorkTime实体相关的请求。  
+  
 实体层：定义了与数据库表对应的Java实体。在本项目中，实体层文件位于com/example/officemgt/entity文件夹下。本项目主要定义了三个实体：Area、Office和WorkTime。  
+  
 DAO层：直接与数据库交互，负责数据的CRUD操作。在本项目中，实体层文件位于com/example/officemgt/mapper文件夹下。本项目定义了AreaMapper、OfficeMapper和WorkTimeMapper这三个接口，用于处理与对应实体相关的数据库操作。  
 
 ### 数据库部分
 
-该项目的数据库定义了area、office、work_time三个表，分别存储地区、营业厅、工作时间的信息，其中office表的area_id属性以area表中的id属性为外键，work_time表中的office属性以office表中的id属性为外键。  
+该项目的数据库定义了area、office、work_time三个表，分别存储地区、营业厅、工作时间的信息，其中office表的area_id属性以area表中的id属性为外键，work_time表中的office属性以office表中的id属性为外键。地区和营业厅表中存储了所有地区和营业厅信息。而工作时间表的存储逻辑为：默认工作时间（8：00：00~17：00：00）不存储在表中，如果用户修改了工作时间，则将修改后的工作时间信息存储在表中。  
 
 ```SQL
 create table `area`(
@@ -68,3 +105,12 @@ create table `work_time`(
 
 数据库ER图如下：  
 ![Alt text](image.png)
+
+主要的SQL查询过程：  
+该系统的数据库部分主要涉及三个查询：
+
+1. 查询区域
+2. 根据区域查询营业厅
+3. 根据日期信息和办公室id查询工作时间信息
+
+数据库查询并不复杂，在此不再过多赘述。  
